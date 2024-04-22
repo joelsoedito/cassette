@@ -6,7 +6,7 @@ import TapePlayer from '@/components/composition/TapePlayer';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="bg-pink-100 flex min-h-screen flex-col items-center justify-between p-8">
       <Player />
       {/* <TapePlayer /> */}
     </main>

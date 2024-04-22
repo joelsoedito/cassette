@@ -4,8 +4,8 @@ export const TurnTableSVG = () => (
     id="Layer_1"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 508 508"
-    height={500}
-    width={400}
+    height={300}
+    width={300}
   >
     <path
       style={{ fill: "#AEB1B4" }}

@@ -203,7 +203,7 @@ export const Player = ({ song = "/swag.mp3" }) => {
   };
 
   return (
-    <div>
+    <div className="max-w-full">
       <TurnTableSVG />
       <div id="controls" className="flex flex-row justify-between pb-4">
         {/* <button
@@ -216,10 +216,12 @@ export const Player = ({ song = "/swag.mp3" }) => {
         {/* <button onClick={handleStop}>stop</button> */}
       </div>
 
-      <div className="flex justify-between pb-5">
+      <div className="flex justify-between">
         <button onClick={tapeStart}>Tape Start</button>
         <button onClick={tapeStop}>Tape Stop</button>
       </div>
+
+      <hr />
 
       <div className="flex justify-between">
         <button
