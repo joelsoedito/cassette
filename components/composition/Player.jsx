@@ -105,7 +105,7 @@ export const Player = ({ song = "/swag.mp3" }) => {
   // Function to stop rewinding
   const stopRewind = () => {
     if (player) {
-      player.reverse = !player.reversel // Toggle the reverse state
+      player.reverse = !player.reversel; // Toggle the reverse state
       player.playbackRate = playbackRate; // Reset playback rate
     }
     clearInterval(rewindIntervalId);
@@ -136,19 +136,92 @@ export const Player = ({ song = "/swag.mp3" }) => {
     }
   };
 
+  // Function to gradually increase playback rate to simulate tape start
+  const tapeStart = async () => {
+    if (!player) return;
+    if (Tone.context.state !== "running") {
+      await Tone.start(); // Start the Tone context if not already running
+    }
+    player.reverse = false; // Ensure playback is not in reverse
+    player.playbackRate = 0.1; // Start at a low rate
+    player.sync().start(0);
+    Tone.Transport.start();
+
+    const accelerate = setInterval(() => {
+      if (player.playbackRate < 1) {
+        player.playbackRate += 0.1; // Incrementally increase playback rate
+        setPlaybackRate(player.playbackRate);
+      } else {
+        clearInterval(accelerate);
+        player.playbackRate = 1; // Ensure playback rate is set to normal
+        setPlaybackRate(1);
+      }
+    }, 100); // Adjust the interval as needed for a smoother increase
+  };
+
+  // Function to gradually decrease playback rate to simulate tape stop
+  const tapeStop = () => {
+    if (!player) return;
+
+    const decelerate = setInterval(() => {
+      if (player.playbackRate > 0.1) {
+        player.playbackRate -= 0.1; // Incrementally decrease playback rate
+        setPlaybackRate(player.playbackRate);
+      } else {
+        clearInterval(decelerate);
+        Tone.Transport.stop();
+        player.unsync();
+        player.playbackRate = 1; // Reset playback rate for future plays
+        setIsPlaying(false);
+        setPlaybackRate(1);
+      }
+    }, 100); // Adjust the interval as needed for a smoother decrease
+  };
+
+  // Function to increase playback rate by 20%
+  const fastForwardStart = () => {
+    if (!player) return;
+    if (Tone.context.state !== "running") {
+      Tone.start(); // Ensure the audio context is running
+    }
+    const increasedRate = playbackRate * 1.2;
+    player.playbackRate = increasedRate; // Set playback rate to 120% of current rate
+    setPlaybackRate(increasedRate);
+
+    if (Tone.Transport.state !== "started") {
+      player.sync().start(0); // Sync and start player if not already playing
+      Tone.Transport.start();
+      setIsPlaying(true);
+    }
+  };
+
+  // Function to reset playback rate to normal
+  const fastForwardStop = () => {
+    if (!player) return;
+    player.playbackRate = 1; // Reset playback rate to normal
+    setPlaybackRate(1);
+  };
+
   return (
     <div>
       <TurnTableSVG />
       <div id="controls" className="flex flex-row justify-between pb-4">
-        <button
+        {/* <button
           onClick={handlePlayPause}
           className="border border-black border-solid"
         >
           play/pause
-        </button>
+        </button> */}
 
-        <button onClick={handleStop}>stop</button>
+        {/* <button onClick={handleStop}>stop</button> */}
+      </div>
 
+      <div className="flex justify-between pb-5">
+        <button onClick={tapeStart}>Tape Start</button>
+        <button onClick={tapeStop}>Tape Stop</button>
+      </div>
+
+      <div className="flex justify-between">
         <button
           onMouseDown={startRewind}
           onMouseUp={stopRewind}
@@ -156,10 +229,17 @@ export const Player = ({ song = "/swag.mp3" }) => {
           onTouchStart={startRewind}
           onTouchEnd={stopRewind}
         >
-          rewind
+          Reverse
         </button>
+        <button
+          onMouseDown={fastForwardStart}
+          onMouseUp={fastForwardStop}
+          onMouseLeave={fastForwardStop}
+        >
+          Fast Forward
+        </button>{" "}
       </div>
-      fwequeswie
+      {/* fwequeswie
       <input
         type="range"
         min="500"
@@ -168,17 +248,20 @@ export const Player = ({ song = "/swag.mp3" }) => {
         onChange={updateFilterFrequency}
         style={{ width: "100%" }}
         step="10"
-      />
-      tempo
-      <input
-        type="range"
-        min={0.9}
-        max={1.1}
-        value={playbackRate}
-        onChange={updatePlaybackRate}
-        style={{ width: "100%" }}
-        step="0.01"
-      />
+      /> */}
+
+      <label>
+        tempo{" "}
+        <input
+          type="range"
+          min={0.9}
+          max={1.1}
+          value={playbackRate}
+          onChange={updatePlaybackRate}
+          style={{ width: "100%" }}
+          step="0.01"
+        />
+      </label>
       <input
         type="range"
         min="0"
